@@ -43,6 +43,19 @@ Article.loadAll = function(rawData) {
   })
 }
 
+/*function checkHead() {
+  $.ajax({
+    type: 'HEAD',
+    url: 'data/hackerIpsum.json',
+    complete: function(xhr) {
+      return xhr.getResponseHeader('Content-Length');
+    }
+  })
+}*/
+
+//$.AJAX.open('HEAD','data/hackerIpsum.json');
+//return $.AJAX.send();
+
 // This function will retrieve the data from either a local or remote source,
 // and process it, then hand off control to the View.
 Article.fetchAll = function() {
@@ -50,18 +63,25 @@ Article.fetchAll = function() {
     // When rawData is already in localStorage,
     // we can load it with the .loadAll function above,
     // and then render the index page (using the proper method on the articleView object).
-    Article.loadAll(); //TODO: What do we pass in to loadAll()?
+    //if (checkHead() === localStorage.getItem('tag')){
+    Article.loadAll(JSON.parse(localStorage.getItem('rawData'))); //TODO: What do we pass in to loadAll()?
     //DONE: What method do we call to render the index page?
     articleView.initIndexPage();
+    //}
   } else {
-    // TODO: When we don't already have the rawData,
+    // DONE: When we don't already have the rawData,
     // we need to retrieve the JSON file from the server with AJAX (which jQuery method is best for this?),
     // cache it in localStorage so we can skip the server call next time,
     // then load all the data into Article.all with the .loadAll function above,
     // and then render the index page.
-    $.getJSON('data/hackerIpsum.json').done(function(data){localStorage.setItem('data', JSON.stringify(data))}).fail(function(error){console.log(error);});
-    // JSON.parse(localStorage.getItem('data'));
-    articleView.initIndexPage();
-
+    $.getJSON('data/hackerIpsum.json')
+    .done(function(rawData){
+      Article.loadAll(rawData);
+      localStorage.setItem('rawData', JSON.stringify(rawData));
+      articleView.initIndexPage();
+      //localStorage.setItem('tag', checkHead())
+    }).fail(function(error){
+      console.log(error);
+    });
   }
 }
